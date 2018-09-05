@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/background">
+        <file>background.png</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>Bing_red.png</file>
+        <file>Ju_black.png</file>
+        <file>Ju_red.png</file>
+        <file>Ma_black.png</file>
+        <file>Ma_red.png</file>
+        <file>Pao_black.png</file>
+        <file>Pao_red.png</file>
+        <file>Shuai_black.png</file>
+        <file>Shuai_red.png</file>
+        <file>Xiang_black.png</file>
+        <file>Xiang_red.png</file>
+        <file>Bing_black.png</file>
+        <file>Shi_red.png</file>
+        <file>Shi_black.png</file>
+    </qresource>
+</RCC>
