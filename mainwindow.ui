@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>981</width>
-    <height>673</height>
+    <width>938</width>
+    <height>616</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,13 +36,6 @@
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" colspan="3">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>   Welcome to Chinese chess game</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0" colspan="3">
        <spacer name="horizontalSpacer">
         <property name="orientation">
@@ -56,7 +49,7 @@
         </property>
        </spacer>
       </item>
-      <item row="2" column="0" rowspan="3">
+      <item row="2" column="0" rowspan="4">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -69,6 +62,13 @@
         </property>
        </spacer>
       </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>   Welcome to Chinese chess game</string>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="1">
        <widget class="QPushButton" name="new_pushButton">
         <property name="text">
@@ -76,7 +76,21 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2" rowspan="3">
+      <item row="5" column="1">
+       <widget class="QPushButton" name="quit_pushButton">
+        <property name="text">
+         <string>Quit</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QPushButton" name="join_pushButton">
+        <property name="text">
+         <string>Join game</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2" rowspan="4">
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -90,16 +104,9 @@
        </spacer>
       </item>
       <item row="3" column="1">
-       <widget class="QPushButton" name="join_pushButton">
+       <widget class="QPushButton" name="load_pushButton">
         <property name="text">
-         <string>Join game</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QPushButton" name="quit_pushButton">
-        <property name="text">
-         <string>Quit</string>
+         <string>Load game</string>
         </property>
        </widget>
       </item>
@@ -109,8 +116,8 @@
    <widget class="QPushButton" name="surrender_pushButton">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>370</y>
+      <x>610</x>
+      <y>350</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -125,7 +132,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>981</width>
+     <width>938</width>
      <height>26</height>
     </rect>
    </property>

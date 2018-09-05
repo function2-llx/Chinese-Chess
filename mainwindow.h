@@ -49,6 +49,8 @@ private slots:
 
     void on_actionLoad_triggered();
 
+    void on_load_pushButton_clicked();
+
 protected:
     void resizeEvent(QResizeEvent*);
     void paintEvent(QPaintEvent*);
@@ -69,6 +71,7 @@ private:
     QHostAddress host;
 
     QPoint transfrom(QPoint chessBoardLocation);
+    void sendInfo(const QString& info);
 };
 
 #endif // MAINWINDOW_H

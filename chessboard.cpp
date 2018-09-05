@@ -5,7 +5,7 @@
 #include <chesspiece.h>
 #include <sstream>
 
-ChessBoard::ChessBoard(QWidget *parent) : QWidget(parent)
+ChessBoard::ChessBoard(QObject *parent) : QObject(parent)
 {
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 9; j++) this->piece[i][j] = Q_NULLPTR;
@@ -55,6 +55,8 @@ ChessBoard::ChessBoard(QWidget *parent) : QWidget(parent)
 
     pixmap.load(":/background/background.png");
 }
+
+ChessBoard::~ChessBoard() {}
 
 void ChessBoard::setPiece(ChessPiece *piece, int r, int c)
 {
@@ -178,7 +180,7 @@ QString ChessBoard::toPlainText() const
 
 static void read(const char* &s, int &x)
 {
-    while (*s < '0' || '9' < *s) s++, qDebug() << *s;
+    while (*s < '0' || '9' < *s) s++;
     x = *s - '0';
     s++;
     while ('0' <= *s && *s <= '9') x = x * 10 + *s - '0', s++;
@@ -188,12 +190,8 @@ static void read(const char* &s, int &x)
 
 void ChessBoard::load(const QString &info)
 {
-    std::ofstream os("test.txt");
-
     std::string st = info.toStdString();
     const char *data = st.c_str();
-    os << data << endl;
-
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 9; j++) if (this->existPiece(i, j)){
             delete this->piece[i][j];
@@ -208,13 +206,11 @@ void ChessBoard::load(const QString &info)
         for (int i = 0; i < 7; i++) {
             int cnt = 0;
             ::read(data, cnt);
-            os << cnt << std::endl;
             ChessPiece::Type type = ChessPiece::Type(i);
             while (cnt--) {
                 int r, c;
                 ::read(data, c);
                 ::read(data, r);
-                os << c << ' ' << r << ' ';
                 r = 9 - r;
                 switch (type) {
                     case ChessPiece::shuai: {
@@ -246,7 +242,6 @@ void ChessBoard::load(const QString &info)
                         break;
                     }
                 }
-                os << std::endl;
             }
         }
     }
@@ -255,7 +250,6 @@ void ChessBoard::load(const QString &info)
 bool ChessBoard::existWinner() const
 {
 //    return this->winnerExist;
-    qDebug() << "test";
     int cnt = 0;
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 9; j++) {
@@ -265,6 +259,5 @@ bool ChessBoard::existWinner() const
             }
         }
     }
-    qDebug() << cnt;
     return cnt != 2;
 }

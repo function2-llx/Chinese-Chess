@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QLabel>
 
-ChessPiece::ChessPiece(Camp camp, QPoint position, const QString& type, QWidget* parent) : QWidget(parent), camp(camp), position(position), type(type)
+ChessPiece::ChessPiece(Camp camp, QPoint position, const QString& type, QObject* parent) : QObject(parent), camp(camp), position(position), type(type)
 {
     this->alive = 1;
     this->selected = 0;
@@ -59,7 +59,7 @@ void ChessPiece::setPosition(QPoint position)
     this->position = position;
 }
 
-Shuai::Shuai(Camp camp, QPoint position, QWidget* parent) : ChessPiece(camp, position, "Shuai", parent) {}
+Shuai::Shuai(Camp camp, QPoint position, QObject* parent) : ChessPiece(camp, position, "Shuai", parent) {}
 
 Shuai::~Shuai() {}
 
@@ -87,7 +87,7 @@ bool Shuai::move(ChessBoard *board, QPoint target)
     return 1;
 }
 
-Bing::Bing(Camp camp, QPoint position, QWidget *parent) : ChessPiece(camp, position, "Bing", parent) {}
+Bing::Bing(Camp camp, QPoint position, QObject *parent) : ChessPiece(camp, position, "Bing", parent) {}
 
 Bing::~Bing() {}
 
@@ -110,7 +110,7 @@ bool Bing::move(ChessBoard *board, QPoint target)
     return 1;
 }
 
-Xiang::Xiang(Camp camp, QPoint position, QWidget *parent) : ChessPiece(camp, position, "Xiang", parent) {}
+Xiang::Xiang(Camp camp, QPoint position, QObject *parent) : ChessPiece(camp, position, "Xiang", parent) {}
 
 Xiang::~Xiang() {}
 
@@ -134,7 +134,7 @@ bool Xiang::move(ChessBoard *board, QPoint target)
     return 1;
 }
 
-Shi::Shi(Camp camp, QPoint position, QWidget* parent) : ChessPiece(camp, position, "Shi", parent) {}
+Shi::Shi(Camp camp, QPoint position, QObject *parent) : ChessPiece(camp, position, "Shi", parent) {}
 
 Shi::~Shi() {}
 
@@ -155,7 +155,7 @@ bool Shi::move(ChessBoard *board, QPoint target)
     return 1;
 }
 
-Ju::Ju(Camp camp, QPoint position, QWidget* parent) : ChessPiece(camp, position, "Ju", parent) {}
+Ju::Ju(Camp camp, QPoint position, QObject *parent) : ChessPiece(camp, position, "Ju", parent) {}
 
 Ju::~Ju() {}
 
@@ -184,7 +184,7 @@ bool Ju::move(ChessBoard *board, QPoint target)
     return 1;
 }
 
-Pao::Pao(Camp camp, QPoint position, QWidget *parent) : ChessPiece(camp, position, "Pao", parent) {}
+Pao::Pao(Camp camp, QPoint position, QObject *parent) : ChessPiece(camp, position, "Pao", parent) {}
 
 Pao::~Pao() {}
 
@@ -229,7 +229,7 @@ bool Pao::move(ChessBoard *board, QPoint target)
     return 1;
 }
 
-Ma::Ma(Camp camp, QPoint position, QWidget *parent) : ChessPiece(camp, position, "Ma", parent) {}
+Ma::Ma(Camp camp, QPoint position, QObject *parent) : ChessPiece(camp, position, "Ma", parent) {}
 
 Ma::~Ma() {}
 

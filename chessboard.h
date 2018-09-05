@@ -8,7 +8,7 @@
 class ChessPiece;
 class QPoint;
 
-class ChessBoard : public QWidget
+class ChessBoard : public QObject
 {
     Q_OBJECT
 
@@ -26,7 +26,8 @@ signals:
 private slots:
 
 public:
-    ChessBoard(QWidget* parent = 0);
+    ChessBoard(QObject* parent = 0);
+    ~ChessBoard();
 
     void setPiece(ChessPiece *piece, int r, int c);
     void setPiece(ChessPiece* piece, QPoint position);

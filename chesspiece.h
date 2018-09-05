@@ -7,7 +7,7 @@
 
 class ChessBoard;
 
-class ChessPiece : public QWidget
+class ChessPiece : public QObject
 {
     Q_OBJECT
 
@@ -46,7 +46,7 @@ signals:
     void pieceDied();
 
 public:
-    ChessPiece(Camp camp, QPoint position, const QString& type, QWidget* parent = 0);
+    ChessPiece(Camp camp, QPoint position, const QString& type, QObject *parent = 0);
 
     virtual ~ChessPiece() = 0;
 
@@ -65,7 +65,7 @@ class Shuai : public ChessPiece {
     Q_OBJECT
 
 public:
-    Shuai(Camp camp, QPoint position, QWidget* parent = 0);
+    Shuai(Camp camp, QPoint position, QObject* parent = 0);
     ~Shuai();
 
     bool move(ChessBoard *board, QPoint target);
@@ -75,7 +75,7 @@ class Bing : public ChessPiece {
     Q_OBJECT
 
 public:
-    Bing(Camp camp, QPoint position, QWidget* parent = 0);
+    Bing(Camp camp, QPoint position, QObject* parent = 0);
     ~Bing();
 
     bool move(ChessBoard *board, QPoint target);
@@ -85,7 +85,7 @@ class Xiang : public ChessPiece {
     Q_OBJECT
 
 public:
-    Xiang(Camp camp, QPoint position, QWidget* parent = 0);
+    Xiang(Camp camp, QPoint position, QObject* parent = 0);
     ~Xiang();
 
     bool move(ChessBoard *board, QPoint target);
@@ -96,7 +96,7 @@ class Shi : public ChessPiece {
     Q_OBJECT
 
 public:
-    Shi(Camp camp, QPoint position, QWidget* parent = 0);
+    Shi(Camp camp, QPoint position, QObject* parent = 0);
     ~Shi();
 
     bool move(ChessBoard *board, QPoint target);
@@ -106,7 +106,7 @@ class Ju : public ChessPiece {
     Q_OBJECT
 
 public:
-    Ju(Camp camp, QPoint position, QWidget* parent = 0);
+    Ju(Camp camp, QPoint position, QObject* parent = 0);
     ~Ju();
 
     bool move(ChessBoard *board, QPoint target);
@@ -116,7 +116,7 @@ class Pao : public ChessPiece {
     Q_OBJECT
 
 public:
-    Pao(Camp camp, QPoint position, QWidget* parent = 0);
+    Pao(Camp camp, QPoint position, QObject* parent = 0);
     ~Pao();
 
     bool move(ChessBoard *board, QPoint target);
@@ -126,7 +126,7 @@ class Ma : public ChessPiece {
     Q_OBJECT
 
 public:
-    Ma(Camp camp, QPoint position, QWidget* parent = 0);
+    Ma(Camp camp, QPoint position, QObject* parent = 0);
     ~Ma();
 
     bool move(ChessBoard *board, QPoint target);
