@@ -70,11 +70,9 @@ bool Shuai::move(ChessBoard *board, QPoint target)
     if (targetPiece != Q_NULLPTR && targetPiece->getCamp() == this->camp) return 0;
 
     if (target.y() == this->position.y() && targetPiece != Q_NULLPTR && targetPiece->getType() == "Shuai") {    //对将
-        for (int i = 1; i <= 8; i++) {
-            if (board->getPiece(QPoint(i, target.y())) != Q_NULLPTR) {
-                return 0;
-            }
-        }
+        int a =  target.x(), b = this->position.x();
+        if (a > b) std::swap(a, b);
+        for (int i = a + 1; i < b; i++) if (board->existPiece(i, target.y())) return 0;
     } else {
         if (abs(target.x() - this->position.x()) + abs(target.y() - position.y()) != 1) return 0;
         if (this->camp == black) {
@@ -193,6 +191,8 @@ bool Pao::move(ChessBoard *board, QPoint target)
     if (target == this->position) return 0;
     ChessPiece *targetPiece = board->getPiece(target);
     if (targetPiece != Q_NULLPTR && targetPiece->getCamp() == this->camp) return 0;
+
+    if (this->position.x() != target.x() && this->position.y() != target.y()) return 0;
 
     if (targetPiece != Q_NULLPTR) {
         int cnt = 0;

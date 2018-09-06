@@ -30,11 +30,18 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    this->setWindowTitle("Chinese chess");
+
     this->host = ::getLocalHost();
     this->running = 0;
     this->checkPlayer = new QMediaPlayer(this);
     checkPlayer->setMedia(QUrl("qrc:/audio/check.mp3"));
+    this->timer = new QTimer(this);
+    this->timer->setInterval(1000);
+    connect(this->timer, SIGNAL(timeout()), this, SLOT(timeDecrease()));
+    timer->start();
 }
+
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -50,6 +57,7 @@ void MainWindow::on_new_pushButton_clicked()
     this->camp = ChessPiece::red;
     connect(this->board, SIGNAL(activityEnd()), this, SLOT(send()));
 
+
     connect(dialog, SIGNAL(accepted()), this, SLOT(initServer()));
 }
 
@@ -57,19 +65,19 @@ void MainWindow::initServer()
 {
     this->listenSocket = new QTcpServer(this);
     this->listenSocket->listen(QHostAddress::Any, 8888);
-    connect(this->listenSocket, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 
     WaitDialog dialog;
     dialog.setHost(this->host);
     connect(&dialog, SIGNAL(rejected()), this, SLOT(closeServer()));
     connect(this->listenSocket, SIGNAL(newConnection()), &dialog, SLOT(accept()));
+    connect(&dialog, SIGNAL(accepted()), this, SLOT(acceptConnection()));
 
     dialog.exec();
 }
 
 void MainWindow::closeServer()
 {
-    this->listenSocket->close();
+    delete this->listenSocket;
     delete this->board;
 }
 
@@ -78,11 +86,34 @@ QPoint MainWindow::transfrom(QPoint chessBoardLocation)
     return centralWidget()->pos() +  2 * this->radius * QPoint(chessBoardLocation.y() + 1, chessBoardLocation.x() + 1);
 }
 
+const static QByteArray timeoutInfo = "time out";
+const static QByteArray surrenderInfo = "surrender";
+
+void MainWindow::timeDecrease()
+{
+    if (!this->running) return;
+    rest--;
+
+    //this->RWSocket->write(::surrenderInfo);
+
+    if (rest == 0 && this->camp == this->board->getActiveCamp()) {
+        this->sendInfo(::timeoutInfo);
+        this->lose();
+    }
+
+    ui->lcdNumber->display(rest);
+}
+
 void MainWindow::paintEvent(QPaintEvent *)
 {
     if (this->running) {
+        ui->lcdNumber->show();
+        if (this->board->getActiveCamp() == this->camp) {
+            ui->turn_label->setText("Your turn");
+        } else ui->turn_label->setText("Opponent's turn");
         ui->surrender_pushButton->show();
         ui->groupBox->hide();
+        ui->turn_label->show();
         QPainter painter(this);
         QPixmap backgroud = this->board->getPixmap().scaled(ui->centralWidget->size(), Qt::KeepAspectRatio);
         painter.drawPixmap(centralWidget()->x(), centralWidget()->y(), backgroud);
@@ -109,7 +140,9 @@ void MainWindow::paintEvent(QPaintEvent *)
             painter.drawEllipse(leftupCorner.x() - r, leftupCorner.y() - r, 2 * r, 2 * r);
         }
     } else {
+        ui->turn_label->hide();
         ui->surrender_pushButton->hide();
+        ui->lcdNumber->hide();
         ui->groupBox->show();
     }
 }
@@ -125,25 +158,50 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
     }
 }
 
+
 void MainWindow::sendInfo(const QString &info)
 {
-    static QByteArray array;
+    QByteArray array;
     array.clear();
     array.append(info);
     this->RWSocket->write(array);
+}
+
+const static int time_limit = 120;
+
+void MainWindow::joinSuccess()
+{
+    connect(this->RWSocket, SIGNAL(readyRead()), this, SLOT(receive()));
+    this->board = new ChessBoard(this);
+    connect(this->board, SIGNAL(activityEnd()), this, SLOT(send()));
+
+
+    this->rest = time_limit;
+    ui->lcdNumber->display(this->rest);
+    this->running = 1;
+    this->board->setActiveCamp(ChessPiece::red);
+
+    QMessageBox::information(this, tr("Hint"), tr("Join success"));
+\
+    this->update();
 }
 
 void MainWindow::acceptConnection()
 {
     this->RWSocket = this->listenSocket->nextPendingConnection();
     connect(this->RWSocket, SIGNAL(readyRead()), this, SLOT(receive()));
-    qDebug() << "connect success";
 
-    this->sendInfo(this->board->toPlainText());
+    this->board->setActiveCamp(ChessPiece::red);
 
     this->running = 1;
-    listenSocket->close();
+    this->rest = time_limit;
+    ui->lcdNumber->display(this->rest);
+    this->sendInfo(this->board->toPlainText());
     this->update();
+
+    QMessageBox::information(this, tr("Hint"), tr("Connect success"));
+    //delete this->listenSocket;
+    this->listenSocket->close();
 }
 
 void MainWindow::on_join_pushButton_clicked()
@@ -160,20 +218,22 @@ void MainWindow::connectHost(QHostAddress host, int port)
 {
     this->RWSocket = new QTcpSocket;
 
+    WaitDialog dialog;
+    connect(&dialog, SIGNAL(rejected()), this, SLOT(giveupJoin()));
+    connect(this->RWSocket, SIGNAL(connected()), &dialog, SLOT(accept()));
+    connect(&dialog, SIGNAL(accepted()), SLOT(joinSuccess()));
     this->RWSocket->connectToHost(host, port);
-
-    this->board = new ChessBoard(this);
-    connect(this->board, SIGNAL(activityEnd()), this, SLOT(send()));
-
-    this->camp = ChessPiece::black; //无奈之举
-
-    this->running = 1;
-    this->board->setActiveCamp(ChessPiece::black);
-    connect(this->RWSocket, SIGNAL(readyRead()), this, SLOT(receive()));
+    dialog.exec();
 }
 
-const static QByteArray surrenderInfo = "surrender";
-const static QByteArray timeoutInfo = "time out";
+void MainWindow::giveupJoin()
+{
+    this->RWSocket->abort();
+    delete this->RWSocket;
+}
+
+
+
 
 void MainWindow::receive()
 {
@@ -185,8 +245,10 @@ void MainWindow::receive()
         this->update();
         if (this->board->existWinner()) {
             this->lose();
-        } else if (this->board->check()){
-            this->checkPlayer->play();
+        } else {
+            if (this->board->check()) this->checkPlayer->play();
+            this->rest = ::time_limit;
+            ui->lcdNumber->display(::time_limit);
         }
     }
 }
@@ -200,6 +262,7 @@ void MainWindow::send()
     if (this->board->existWinner()) {
         this->win();
     }
+    this->rest = ::time_limit;
     this->update();
 }
 
@@ -226,6 +289,9 @@ void MainWindow::on_quit_pushButton_clicked()
 void MainWindow::resizeEvent(QResizeEvent *)
 {
     ui->groupBox->move((this->width() - ui->groupBox->width()) / 2, (this->height() - ui->groupBox->height()) / 2);
+    ui->surrender_pushButton->move(this->centralWidget()->width() - ui->surrender_pushButton->width(), this->centralWidget()->y());
+    ui->lcdNumber->move(this->centralWidget()->width() - ui->lcdNumber->width(), ui->surrender_pushButton->y() + ui->surrender_pushButton->height());
+    ui->turn_label->move(this->centralWidget()->width() - ui->turn_label->width(), ui->lcdNumber->y() + ui->lcdNumber->height());
     //ui->groupBox->resize(this->width(), this->height());
 }
 
@@ -255,12 +321,14 @@ void MainWindow::on_actionExport_triggered()
 void MainWindow::win()
 {
     QMessageBox::information(this, tr("Hint"), tr("You win"));
+    delete this->RWSocket;
     this->running = 0;
 }
 
 void MainWindow::lose()
 {
     QMessageBox::information(this, tr("Hint"), tr("You lose"));
+    delete this->RWSocket;
     this->running = 0;
 }
 

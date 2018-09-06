@@ -289,8 +289,9 @@ bool ChessBoard::check()
             if (this->existPiece(i, j)) {
                 ChessPiece *piece = this->piece[i][j];
                 for (QPoint position: pos_shuai) {
-                    qDebug() << piece->getType();
-                    if (piece->move(this, position)) return 1;
+                    if (piece->move(this, position)) {
+                        return 1;
+                    }
                 }
             }
         }
