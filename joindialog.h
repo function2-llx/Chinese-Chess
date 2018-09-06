@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QHostAddress>
 
+class QLineEdit;
+
 namespace Ui {
 class JoinDialog;
 }
@@ -17,7 +19,7 @@ public:
     ~JoinDialog();
 
 signals:
-    void joinHost(QHostAddress);
+    void joinHost(QHostAddress, int port);
 
 private slots:
 
@@ -27,6 +29,8 @@ private slots:
 
     void input(int);
 
+protected:
+    bool eventFilter(QObject *, QEvent *);
 
 private:
     Ui::JoinDialog *ui;
@@ -34,6 +38,8 @@ private:
     void addText(const QString&);
 
     void backSpace();
+
+    QLineEdit *focusLineEdit;
 };
 
 #endif // JOINDIALOG_H

@@ -8,6 +8,7 @@
 #include <waitdialog.h>
 #include "joindialog.h"
 #include <QHostAddress>
+#include <QMediaPlayer>
 #include "chesspiece.h"
 #include <QDebug>
 #include "chessboard.h"
@@ -31,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->host = ::getLocalHost();
     this->running = 0;
+    this->checkPlayer = new QMediaPlayer(this);
+    checkPlayer->setMedia(QUrl("qrc:/audio/check.mp3"));
 }
 MainWindow::~MainWindow()
 {
@@ -40,8 +43,8 @@ MainWindow::~MainWindow()
 void MainWindow::on_new_pushButton_clicked()
 {
     NewDialog *dialog = new NewDialog(this, this->host);
-    dialog->show();
     dialog->setModal(1);
+    dialog->show();
 
     this->board = new ChessBoard(this);
     this->camp = ChessPiece::red;
@@ -67,6 +70,7 @@ void MainWindow::initServer()
 void MainWindow::closeServer()
 {
     this->listenSocket->close();
+    delete this->board;
 }
 
 QPoint MainWindow::transfrom(QPoint chessBoardLocation)
@@ -104,9 +108,6 @@ void MainWindow::paintEvent(QPaintEvent *)
             painter.setPen(pen);
             painter.drawEllipse(leftupCorner.x() - r, leftupCorner.y() - r, 2 * r, 2 * r);
         }
-
-   //     qDebug() << this->board->toPlainText();
-
     } else {
         ui->surrender_pushButton->hide();
         ui->groupBox->show();
@@ -117,9 +118,7 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
 {
     if (!this->running) return;
     if (e->button() == Qt::LeftButton && this->camp == this->board->getActiveCamp()) {
-        qDebug() << "this camp: " << this->camp << " active camp: " << this->board->getActiveCamp();
         QPoint position = e->pos();
-        qDebug() << position;
         double r = this->radius;
         this->board->click((position.y() - centralWidget()->y() - r) / (2 * r), (position.x() - centralWidget()->x() - r) / (2 * r));
         this->update();
@@ -150,17 +149,18 @@ void MainWindow::acceptConnection()
 void MainWindow::on_join_pushButton_clicked()
 {
     JoinDialog *dialog = new JoinDialog(this);
-    dialog->show();
     dialog->setModal(1);
+    dialog->show();
+
     this->camp = ChessPiece::black;
-    connect(dialog, SIGNAL(joinHost(QHostAddress)), this, SLOT(connectHost(QHostAddress)));
+    connect(dialog, SIGNAL(joinHost(QHostAddress,int)), this, SLOT(connectHost(QHostAddress,int)));
 }
 
-void MainWindow::connectHost(QHostAddress host)
+void MainWindow::connectHost(QHostAddress host, int port)
 {
     this->RWSocket = new QTcpSocket;
 
-    this->RWSocket->connectToHost(host, 8888);
+    this->RWSocket->connectToHost(host, port);
 
     this->board = new ChessBoard(this);
     connect(this->board, SIGNAL(activityEnd()), this, SLOT(send()));
@@ -177,9 +177,7 @@ const static QByteArray timeoutInfo = "time out";
 
 void MainWindow::receive()
 {
-    qDebug() << "receive during";
     QString info = this->RWSocket->readAll();
-    qDebug() << info;
     if (info == ::surrenderInfo || info == ::timeoutInfo) {
         this->win();
     } else {
@@ -187,16 +185,14 @@ void MainWindow::receive()
         this->update();
         if (this->board->existWinner()) {
             this->lose();
-        } else {
-            this->board->switchActiveCamp();
+        } else if (this->board->check()){
+            this->checkPlayer->play();
         }
-        this->update();
     }
 }
 
 void MainWindow::send()
 {
-    this->board->switchActiveCamp();
     QByteArray array;
     array.clear();
     array.append(this->board->toPlainText());
@@ -287,9 +283,13 @@ void MainWindow::on_actionLoad_triggered()
 
     connect(this->board, SIGNAL(activityEnd()), this, SLOT(send()));
 
-    this->initServer();
+    NewDialog *dialog = new NewDialog(this, this->host);
+    dialog->setModal(1);
+    dialog->show();
 
-    this->update();
+    connect(dialog, SIGNAL(accepted()), this, SLOT(initServer()));
+
+    //this->update();
 }
 
 void MainWindow::on_load_pushButton_clicked()

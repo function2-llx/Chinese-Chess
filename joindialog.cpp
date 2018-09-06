@@ -4,6 +4,7 @@
 #include <QSignalMapper>
 #include <QMessageBox>
 #include <QNetworkInterface>
+#include <QIntValidator>
 
 static QHostAddress getLocalHost()
 {
@@ -49,21 +50,41 @@ JoinDialog::JoinDialog(QWidget *parent) :
 
     connect(mapper, SIGNAL(mapped(int)), this, SLOT(input(int)));
 
-    ui->lineEdit->setText(::getLocalHost().toString());
+    ui->IP_lineEdit->setText(::getLocalHost().toString());
+    ui->port_lineEdit->setValidator(new QIntValidator(1, 65536, this));
+
+    ui->IP_lineEdit->installEventFilter(this);
+    ui->port_lineEdit->installEventFilter(this);
+
+    this->focusLineEdit = ui->IP_lineEdit;
+
+    ui->port_lineEdit->setText(tr("8888"));
+}
+
+bool JoinDialog::eventFilter(QObject* target, QEvent *e)
+{
+    if (e->type() == QEvent::FocusIn) {
+        this->focusLineEdit = static_cast<QLineEdit*>(target);
+    }
+    return 0;
 }
 
 void JoinDialog::addText(const QString & st)
 {
-    ui->lineEdit->setText(ui->lineEdit->text() + st);
+//    ui->port_lineEdit->setFocus();
+    QLineEdit *lineEdit = this->focusLineEdit;
+    lineEdit->setText(lineEdit->text() + st);
 }
 
 void JoinDialog::backSpace()
 {
-    ui->lineEdit->setText(ui->lineEdit->text().chopped(1));
+    QLineEdit *lineEdit = this->focusLineEdit;
+    lineEdit->setText(lineEdit->text().chopped(1));
 }
 
 void JoinDialog::input(int x)
 {
+
     if (0 <=x && x <= 9) {
         this->addText(QString::number(x));
     } else if (x == 10) this->addText(tr("."));
@@ -83,12 +104,14 @@ void JoinDialog::on_cancle_pushButton_clicked()
 void JoinDialog::on_OK_pushButton_clicked()
 {
     QHostAddress host;
-    if (host.setAddress(ui->lineEdit->text())) {
-        emit this->joinHost(host);
+    int port = 8888;
+    if (host.setAddress(ui->IP_lineEdit->text())) {
+        port = ui->port_lineEdit->text().toInt();
+        emit this->joinHost(host, port);
         this->accept();
     } else {
         QMessageBox::information(this, tr("Hint"), tr("IP is unable to parse"));
-        ui->lineEdit->clear();
+
         return;
     }
 }

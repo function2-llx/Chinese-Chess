@@ -9,6 +9,7 @@ class QTcpServer;
 class QTcpSocket;
 
 class ChessBoard;
+class QMediaPlayer;
 
 namespace Ui {
 class MainWindow;
@@ -26,7 +27,7 @@ private slots:
     void on_new_pushButton_clicked();
     void initServer();
     void acceptConnection();
-    void connectHost(QHostAddress);
+    void connectHost(QHostAddress, int port);
     void on_join_pushButton_clicked();
     void closeServer();
 
@@ -69,6 +70,7 @@ private:
     QTcpSocket *RWSocket;
 
     QHostAddress host;
+    QMediaPlayer *checkPlayer;
 
     QPoint transfrom(QPoint chessBoardLocation);
     void sendInfo(const QString& info);

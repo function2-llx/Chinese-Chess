@@ -52,6 +52,8 @@ public:
 
     QString toPlainText() const;
     void load(const QString& info);
+
+    bool check();
 };
 
 #endif // CHESSBOARD_H

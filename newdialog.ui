@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>120</y>
+     <y>130</y>
      <width>93</width>
      <height>28</height>
     </rect>
@@ -29,8 +29,8 @@
   <widget class="QPushButton" name="cancle_pushButton">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>120</y>
+     <x>160</x>
+     <y>130</y>
      <width>93</width>
      <height>28</height>
     </rect>
@@ -57,6 +57,29 @@
     <rect>
      <x>120</x>
      <y>50</y>
+     <width>131</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>90</y>
+     <width>72</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Port:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_2">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>90</y>
      <width>131</width>
      <height>21</height>
     </rect>

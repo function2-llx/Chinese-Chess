@@ -115,6 +115,7 @@ void ChessBoard::click(int r, int c)
             this->setPiece(this->selectedPiece, r, c);
             this->selectedPiece = Q_NULLPTR;
 
+            this->switchActiveCamp();
             emit this->activityEnd();
         }
     } else {
@@ -168,12 +169,18 @@ const static QString type[] = {"Shuai", "Shi", "Xiang", "Ma", "Ju", "Pao", "Bing
 
 QString ChessBoard::toPlainText() const
 {
-    QString info;
-    info.append(tr("red\n"));
-    for (int i = 0; i < 7; i++) this->findChess(ChessPiece::red, type[i], info);
+    QString info_red, info_black;
 
-    info.append(tr("black\n"));
-    for (int i = 0; i < 7; i++) this->findChess(ChessPiece::black, type[i], info);
+    info_red.append(tr("red\n"));
+    for (int i = 0; i < 7; i++) this->findChess(ChessPiece::red, type[i], info_red);
+
+    info_black.append(tr("black\n"));
+    for (int i = 0; i < 7; i++) this->findChess(ChessPiece::black, type[i], info_black);
+
+    QString info;
+
+    if (this->activeCamp == ChessPiece::red) info.append(info_red + info_black);
+    else info.append(info_black + info_red);
 
     return info;
 }
@@ -186,11 +193,14 @@ static void read(const char* &s, int &x)
     while ('0' <= *s && *s <= '9') x = x * 10 + *s - '0', s++;
 }
 
-#include <fstream>
-
 void ChessBoard::load(const QString &info)
 {
     std::string st = info.toStdString();
+
+    bool flag = 0;
+    if (info[0] == "r") this->activeCamp = ChessPiece::red;
+    else this->activeCamp = ChessPiece::black, flag = 1;
+
     const char *data = st.c_str();
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 9; j++) if (this->existPiece(i, j)){
@@ -202,7 +212,7 @@ void ChessBoard::load(const QString &info)
     this->selectedPiece = Q_NULLPTR;
 
     for (int k = 0; k < 2; k++) {
-        ChessPiece::Camp camp = ChessPiece::Camp(k);
+        ChessPiece::Camp camp = ChessPiece::Camp(k ^ flag);
         for (int i = 0; i < 7; i++) {
             int cnt = 0;
             ::read(data, cnt);
@@ -260,4 +270,30 @@ bool ChessBoard::existWinner() const
         }
     }
     return cnt != 2;
+}
+
+bool ChessBoard::check()
+{
+    QVector<QPoint> pos_shuai;
+    pos_shuai.clear();
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (this->existPiece(i, j) && this->piece[i][j]->getType() == "Shuai") {
+                pos_shuai.push_back(QPoint(i, j));
+            }
+        }
+    }
+
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (this->existPiece(i, j)) {
+                ChessPiece *piece = this->piece[i][j];
+                for (QPoint position: pos_shuai) {
+                    qDebug() << piece->getType();
+                    if (piece->move(this, position)) return 1;
+                }
+            }
+        }
+    }
+    return 0;
 }
