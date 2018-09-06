@@ -18,7 +18,7 @@ public:
     explicit WaitDialog(QWidget *parent = 0);
     ~WaitDialog();
 
-    void setHost(const QHostAddress &host);
+    void setHost(const QHostAddress &host, int port = 14514);
 
 private slots:
     void on_pushButton_clicked();

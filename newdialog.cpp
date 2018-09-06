@@ -15,7 +15,7 @@ NewDialog::NewDialog(QWidget *parent, QHostAddress host) :
     ui->setupUi(this);
 
     ui->lineEdit->setText(host.toString());
-    ui->lineEdit_2->setText("8888");
+    ui->lineEdit_2->setText("14514");
 }
 
 NewDialog::~NewDialog()

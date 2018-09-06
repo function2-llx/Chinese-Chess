@@ -39,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->timer = new QTimer(this);
     this->timer->setInterval(1000);
     connect(this->timer, SIGNAL(timeout()), this, SLOT(timeDecrease()));
-    timer->start();
 }
 
 MainWindow::~MainWindow()
@@ -64,7 +63,7 @@ void MainWindow::on_new_pushButton_clicked()
 void MainWindow::initServer()
 {
     this->listenSocket = new QTcpServer(this);
-    this->listenSocket->listen(QHostAddress::Any, 8888);
+    this->listenSocket->listen(QHostAddress::Any, 14514);
 
     WaitDialog dialog;
     dialog.setHost(this->host);
@@ -93,7 +92,7 @@ void MainWindow::timeDecrease()
 {
     if (!this->running) return;
     rest--;
-
+    ui->lcdNumber->display(rest);
     //this->RWSocket->write(::surrenderInfo);
 
     if (rest == 0 && this->camp == this->board->getActiveCamp()) {
@@ -101,7 +100,6 @@ void MainWindow::timeDecrease()
         this->lose();
     }
 
-    ui->lcdNumber->display(rest);
 }
 
 void MainWindow::paintEvent(QPaintEvent *)
@@ -167,7 +165,7 @@ void MainWindow::sendInfo(const QString &info)
     this->RWSocket->write(array);
 }
 
-const static int time_limit = 120;
+const static int time_limit = 180;
 
 void MainWindow::joinSuccess()
 {
@@ -177,6 +175,7 @@ void MainWindow::joinSuccess()
 
 
     this->rest = time_limit;
+    this->timer->start();
     ui->lcdNumber->display(this->rest);
     this->running = 1;
     this->board->setActiveCamp(ChessPiece::red);
@@ -195,6 +194,7 @@ void MainWindow::acceptConnection()
 
     this->running = 1;
     this->rest = time_limit;
+    this->timer->start();
     ui->lcdNumber->display(this->rest);
     this->sendInfo(this->board->toPlainText());
     this->update();
@@ -232,14 +232,14 @@ void MainWindow::giveupJoin()
     delete this->RWSocket;
 }
 
-
-
-
 void MainWindow::receive()
 {
     QString info = this->RWSocket->readAll();
     if (info == ::surrenderInfo || info == ::timeoutInfo) {
         this->win();
+        if (info == ::surrenderInfo) QMessageBox::information(this, tr("Hint"), tr("Oppenent surrendered"));
+        if (info == ::timeoutInfo) QMessageBox::information(this, tr("Hint"), tr("Opponent's time out"));
+
     } else {
         this->board->load(info);
         this->update();
@@ -320,16 +320,18 @@ void MainWindow::on_actionExport_triggered()
 
 void MainWindow::win()
 {
+    this->timer->stop();
     QMessageBox::information(this, tr("Hint"), tr("You win"));
-    delete this->RWSocket;
     this->running = 0;
+    delete this->RWSocket;
 }
 
 void MainWindow::lose()
 {
+    this->timer->stop();
     QMessageBox::information(this, tr("Hint"), tr("You lose"));
-    delete this->RWSocket;
     this->running = 0;
+    delete this->RWSocket;
 }
 
 void MainWindow::on_actionLoad_triggered()

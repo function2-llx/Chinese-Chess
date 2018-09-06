@@ -30,7 +30,7 @@ void WaitDialog::on_pushButton_clicked()
     this->reject();
 }
 
-void WaitDialog::setHost(const QHostAddress& host)
+void WaitDialog::setHost(const QHostAddress& host, int port)
 {
-    this->hostLabel->setText(tr("Your Host Address: ") + host.toString());
+    this->hostLabel->setText(tr("Your Host Address: ") + host.toString() + ":" + QString::number(port));
 }

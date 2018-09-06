@@ -58,7 +58,7 @@ JoinDialog::JoinDialog(QWidget *parent) :
 
     this->focusLineEdit = ui->IP_lineEdit;
 
-    ui->port_lineEdit->setText(tr("8888"));
+    ui->port_lineEdit->setText(tr("14514"));
 }
 
 bool JoinDialog::eventFilter(QObject* target, QEvent *e)
@@ -104,14 +104,13 @@ void JoinDialog::on_cancle_pushButton_clicked()
 void JoinDialog::on_OK_pushButton_clicked()
 {
     QHostAddress host;
-    int port = 8888;
+    int port = 14514;
     if (host.setAddress(ui->IP_lineEdit->text())) {
         port = ui->port_lineEdit->text().toInt();
-        emit this->joinHost(host, port);
         this->accept();
+        emit this->joinHost(host, port);
     } else {
         QMessageBox::information(this, tr("Hint"), tr("IP is unable to parse"));
-
         return;
     }
 }
